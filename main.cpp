@@ -1,10 +1,10 @@
 #include <QApplication>
-#include <QMainWindow>
+#include "DeformDialog.h"
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
-    QMainWindow mainWindow;
-    mainWindow.show();
+    DeformDialog deformDialog;
+    deformDialog.show();
     return app.exec();
 }
