@@ -18,7 +18,8 @@ add_definitions(${Qt5Widgets_DEFINITIONS})
 
 find_package(Qt5Widgets REQUIRED)
 
-add_executable(${PROJECT_NAME} main.cpp DeformDialog.cpp DeformWidget.cpp)
 add_library(DeformDialog.ui DeformDialog.ui)
 
+add_executable(${PROJECT_NAME} main.cpp DeformDialog.cpp DeformWidget.cpp)
 qt5_use_modules(${PROJECT_NAME} Widgets Gui Core)
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})

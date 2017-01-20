@@ -17,6 +17,7 @@ public:
 
 public slots:
     void onButtonLoadImage();
+    void onButtonEdgeDetect();
 
 private:
     Ui::DeformDialog *ui;

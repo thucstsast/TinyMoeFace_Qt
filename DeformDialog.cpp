@@ -9,6 +9,7 @@ DeformDialog::DeformDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->buttonLoadImage, SIGNAL(clicked(bool)), this, SLOT(onButtonLoadImage()));
+    connect(ui->buttonEdgeDetect, SIGNAL(clicked(bool)), this, SLOT(onButtonEdgeDetect()));
 }
 
 DeformDialog::~DeformDialog()
@@ -25,4 +26,9 @@ void DeformDialog::onButtonLoadImage()
         return;
     }
     ui->deformWidget->loadImage(imageFileName);
+}
+
+void DeformDialog::onButtonEdgeDetect()
+{
+    ui->deformWidget->performEdgeDetect();
 }

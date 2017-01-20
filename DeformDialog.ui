@@ -24,9 +24,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="buttonEdgeDetect">
        <property name="text">
-        <string>PushButton</string>
+        <string>Edge Detect</string>
        </property>
       </widget>
      </item>
