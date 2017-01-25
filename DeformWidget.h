@@ -12,7 +12,7 @@ protected:
 public:
     explicit DeformWidget(QWidget *parent = 0);
     virtual bool loadImage(const QString& path);
-    void performEdgeDetect();
+    virtual void performEdgeDetect();
 
 signals:
 
