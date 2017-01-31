@@ -11,6 +11,7 @@ protected:
     void paintEvent(QPaintEvent * event) override;
 public:
     explicit DeformWidget(QWidget *parent = 0);
+    virtual bool loadMetadata(const QString& path);
     virtual bool loadImage(const QString& path);
     virtual void performEdgeDetect();
 

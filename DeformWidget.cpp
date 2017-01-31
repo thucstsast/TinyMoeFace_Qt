@@ -2,10 +2,38 @@
 #include <opencv/cv.hpp>
 #include <QDebug>
 #include <QPainter>
+#include <QDir>
+#include <QFileInfo>
 #include "DeformWidget.h"
+#include "FaceOutlineReader.h"
 
 DeformWidget::DeformWidget(QWidget *parent) : QWidget(parent)
 {
+}
+
+bool DeformWidget::loadMetadata(const QString &path)
+{
+    QString outlineFileName;
+    QStringList layersFileName;
+    QDir dataDir = QFileInfo(path).dir();
+    QFile metadataFile(path);
+    if(!metadataFile.open(QIODevice::ReadOnly))
+    {
+        return false;
+    }
+    QTextStream metadataFileStream(&metadataFile);
+    outlineFileName = dataDir.absoluteFilePath(metadataFileStream.readLine());
+    while(!metadataFileStream.atEnd())
+    {
+        QString temp = dataDir.absoluteFilePath(metadataFileStream.readLine());
+        layersFileName.append(temp);
+    }
+    metadataFile.close();
+    qDebug() << outlineFileName;
+    qDebug() << layersFileName;
+    FaceOutlineReader outlineReader;
+    qDebug() << outlineReader.openFile(outlineFileName);
+    outlineReader.parseSvgOutline();
 }
 
 void DeformWidget::paintEvent(QPaintEvent * event)

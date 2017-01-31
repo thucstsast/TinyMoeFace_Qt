@@ -20,12 +20,12 @@ DeformDialog::~DeformDialog()
 void DeformDialog::onButtonLoadImage()
 {
     QString imageFileName = QFileDialog::getOpenFileName(this,
-        tr("Open Image"), QDir::currentPath(), tr("Image Files (*.png *.jpg *.bmp)"));
+        tr("Open Image Metadata"), QDir::currentPath(), tr("Metadata (metadata.txt)"));
     if(imageFileName.isEmpty())
     {
         return;
     }
-    ui->deformWidget->loadImage(imageFileName);
+    ui->deformWidget->loadMetadata(imageFileName);
 }
 
 void DeformDialog::onButtonEdgeDetect()
