@@ -38,6 +38,10 @@ QVector<QPointF> FaceOutlineReader::parseSvgPathAttribute(const QString &attr)
                 QStringList temp = part.split(',');
                 Q_ASSERT(temp.size() == 2);
                 QPointF p(temp[0].toFloat(), temp[1].toFloat());
+                if(lastCommand == 'l')
+                {
+                    p += ret.last();
+                }
                 ret.append(p);
             }
             else if(lastCommand == 'V' || lastCommand == 'v')
@@ -125,6 +129,12 @@ bool FaceOutlineReader::parseSvgOutline()
         QString outlineName = attributes.value("id").toString();
         QString outlinePath = attributes.value("d").toString();
         qDebug() << "Line 72";
-        parseSvgPathAttribute(outlinePath);
+        QVector<QPointF> outline = parseSvgPathAttribute(outlinePath);
+        outlines.insert(outlineName, outline);
     }
+}
+
+const QMap<QString, QVector<QPointF> > &FaceOutlineReader::getOutlines()
+{
+    return outlines;
 }

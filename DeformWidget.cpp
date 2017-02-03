@@ -25,26 +25,46 @@ bool DeformWidget::loadMetadata(const QString &path)
     outlineFileName = dataDir.absoluteFilePath(metadataFileStream.readLine());
     while(!metadataFileStream.atEnd())
     {
-        QString temp = dataDir.absoluteFilePath(metadataFileStream.readLine());
-        layersFileName.append(temp);
+        QString line = metadataFileStream.readLine();
+        QStringList parts = line.split(' ');
+        QString layerName = parts[0];
+        QString layerFileName = dataDir.absoluteFilePath(parts[1]);
+        layers[layerName] = new QImage(layerFileName);
+        qDebug() << layerFileName;
+        layerOrder.append(layerName);
+        layersFileName.append(layerFileName);
     }
     metadataFile.close();
     qDebug() << outlineFileName;
     qDebug() << layersFileName;
-    FaceOutlineReader outlineReader;
-    qDebug() << outlineReader.openFile(outlineFileName);
+    outlineReader.openFile(outlineFileName);
     outlineReader.parseSvgOutline();
 }
 
 void DeformWidget::paintEvent(QPaintEvent * event)
 {
     QWidget::paintEvent(event);
-    if(image == nullptr)
-    {
-        return;
-    }
     QPainter painter(this);
-    painter.drawImage(0, 0, *image);
+    for(const QString& layerName : layerOrder)
+    {
+        painter.drawImage(0, 0, *layers[layerName]);
+    }
+    const auto &outline = outlineReader.getOutlines();
+    QPainterPath path;
+    QMapIterator<QString, QVector<QPointF>> i(outline);
+    while (i.hasNext())
+    {
+        i.next();
+        for(const QPointF& point : i.value())
+        {
+            qDebug() << point;
+            painter.drawPoint(point + QPointF(100,100));
+        }
+    }
+    //painter.drawPoint();
+    //qDebug() << outline.keys();
+    //painter.drawPoint();
+    //painter.drawPath();
 }
 
 bool DeformWidget::loadImage(const QString& path)
