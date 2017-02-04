@@ -10,6 +10,8 @@ class DeformWidget : public QWidget
 {
     Q_OBJECT
 protected:
+    int imageWidth = -1;
+    int imageHeight = -1;
     QMap<QString, QImage*> layers;
     QStringList layerFileNames;
     QStringList layerOrder;

@@ -21,7 +21,7 @@ public:
     FaceOutlineReader();
     bool openFile(const QString& fileName);
     bool closeFile();
-    bool parseSvgOutline();
+    bool parseSvgOutline(float width, float height);
     const QMap<QString, QVector<QPointF> > &getOutlines();
 };
 

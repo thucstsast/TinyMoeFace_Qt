@@ -106,9 +106,11 @@ bool FaceOutlineReader::closeFile()
     return true;
 }
 
-bool FaceOutlineReader::parseSvgOutline()
+bool FaceOutlineReader::parseSvgOutline(float width, float height)
 {
     QXmlStreamReader::TokenType tokenType;
+    float viewBoxWidth = -1.0f;
+    float viewBoxHeight = -1.0f;
     while(true)
     {
         tokenType = xmlReader->readNext();
@@ -121,16 +123,32 @@ bool FaceOutlineReader::parseSvgOutline()
             continue;
         }
         auto attributes = xmlReader->attributes();
-        if(xmlReader->name() != "path")
+        if(xmlReader->name() != "path" && xmlReader->name() != "svg")
         {
             continue;
         }
-        qDebug() << "Line 69";
-        QString outlineName = attributes.value("id").toString();
-        QString outlinePath = attributes.value("d").toString();
-        qDebug() << "Line 72";
-        QVector<QPointF> outline = parseSvgPathAttribute(outlinePath);
-        outlines.insert(outlineName, outline);
+        if(xmlReader->name() == "path")
+        {
+            Q_ASSERT(viewBoxWidth > 0.0f && viewBoxHeight > 0.0f);
+            QString outlineName = attributes.value("id").toString();
+            QString outlinePath = attributes.value("d").toString();
+            QVector<QPointF> outline = parseSvgPathAttribute(outlinePath);
+            qDebug() << viewBoxWidth << width << viewBoxHeight << height;
+            for(int i = 0; i < outline.size(); i++)
+            {
+                outline[i].setX(outline[i].x() / viewBoxWidth * width);
+                outline[i].setY(outline[i].y() / viewBoxHeight * height);
+            }
+            outlines.insert(outlineName, outline);
+        }
+        else if(xmlReader->name() == "svg")
+        {
+            QString temp = attributes.value("viewBox").toString();
+            QStringList viewBoxParts = temp.split(' ');
+            Q_ASSERT(viewBoxParts.size() == 4);
+            viewBoxWidth = viewBoxParts[2].toFloat();
+            viewBoxHeight = viewBoxParts[3].toFloat();
+        }
     }
 }
 

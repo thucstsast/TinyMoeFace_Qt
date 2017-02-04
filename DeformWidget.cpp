@@ -29,16 +29,24 @@ bool DeformWidget::loadMetadata(const QString &path)
         QStringList parts = line.split(' ');
         QString layerName = parts[0];
         QString layerFileName = dataDir.absoluteFilePath(parts[1]);
-        layers[layerName] = new QImage(layerFileName);
-        qDebug() << layerFileName;
+        auto image = new QImage(layerFileName);
+        layers[layerName] = image;
+        if(imageWidth < 0)
+        {
+            imageWidth = image->width();
+            imageHeight = image->height();
+        }
+        else
+        {
+            Q_ASSERT(imageWidth == image->width());
+            Q_ASSERT(imageHeight == image->height());
+        }
         layerOrder.append(layerName);
         layersFileName.append(layerFileName);
     }
     metadataFile.close();
-    qDebug() << outlineFileName;
-    qDebug() << layersFileName;
     outlineReader.openFile(outlineFileName);
-    outlineReader.parseSvgOutline();
+    outlineReader.parseSvgOutline(imageWidth, imageHeight);
 }
 
 void DeformWidget::paintEvent(QPaintEvent * event)
@@ -58,13 +66,10 @@ void DeformWidget::paintEvent(QPaintEvent * event)
         for(const QPointF& point : i.value())
         {
             qDebug() << point;
-            painter.drawPoint(point + QPointF(100,100));
+            painter.setBrush(QBrush(Qt::red));
+            painter.drawEllipse(point, 3, 3);
         }
     }
-    //painter.drawPoint();
-    //qDebug() << outline.keys();
-    //painter.drawPoint();
-    //painter.drawPath();
 }
 
 bool DeformWidget::loadImage(const QString& path)
