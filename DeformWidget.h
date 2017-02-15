@@ -3,6 +3,7 @@
 
 #include <QMap>
 #include <QWidget>
+#include "CGALTriangulator.h"
 
 #include "FaceOutlineReader.h"
 
@@ -10,6 +11,7 @@ class DeformWidget : public QWidget
 {
     Q_OBJECT
 protected:
+    CDT cdt;
     int imageWidth = -1;
     int imageHeight = -1;
     QMap<QString, QImage*> layers;

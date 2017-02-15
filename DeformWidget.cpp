@@ -47,6 +47,39 @@ bool DeformWidget::loadMetadata(const QString &path)
     metadataFile.close();
     outlineReader.openFile(outlineFileName);
     outlineReader.parseSvgOutline(imageWidth, imageHeight);
+    const auto &outlines = outlineReader.getOutlines();
+    QMapIterator<QString, QVector<QPointF>> it(outlines);
+    qDebug() << "@Line 52";
+    while (it.hasNext())
+    {
+        it.next();
+        qDebug() << "@Line 56";
+        const QVector<QPointF>& points = it.value();
+        QVector<Vertex_handle> vertexList;
+        for(int i = 0; i < points.size(); i++)
+        {
+            vertexList.append(cdt.insert(Point(points[i].x(), points[i].y())));
+        }
+        qDebug() << "@Line 63";
+        for(int i = 0; i < vertexList.size() - 1; i++)
+        {
+            //cdt.insert(Point(2, 0.6));
+            cdt.insert_constraint(vertexList[i], vertexList[i + 1]);
+        }
+        cdt.insert_constraint(vertexList.last(), vertexList[0]);
+    }
+    qDebug() << "@Line 68";
+    /*Vertex_handle va = cdt.insert(Point(-4,0));
+    Vertex_handle vb = cdt.insert(Point(0,-1));
+    Vertex_handle vc = cdt.insert(Point(4,0));
+    Vertex_handle vd = cdt.insert(Point(0,1));
+    cdt.insert(Point(2, 0.6));
+    cdt.insert_constraint(va, vb);
+    cdt.insert_constraint(vb, vc);
+    cdt.insert_constraint(vc, vd);
+    cdt.insert_constraint(vd, va);*/
+    CGALTriangulator triangulator;
+    triangulator.triangulate(cdt);
 }
 
 void DeformWidget::paintEvent(QPaintEvent * event)
@@ -70,6 +103,12 @@ void DeformWidget::paintEvent(QPaintEvent * event)
             painter.drawEllipse(point, 3, 3);
         }
     }
+    for(auto i = cdt.points_begin(); i != cdt.points_end(); i++)
+    {
+        Point p = *i;
+        painter.drawEllipse(p.x(), p.y(), 3, 3);
+    }
+    qDebug() << cdt.number_of_vertices();
 }
 
 bool DeformWidget::loadImage(const QString& path)
