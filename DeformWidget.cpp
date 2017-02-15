@@ -1,11 +1,22 @@
+#include "CGALTriangulator.h"
 #include <vector>
 #include <opencv/cv.hpp>
-#include <QDebug>
+
+uint qHash(const Vertex_handle &key)
+{
+    std::cout <<"111\n";
+    return (intptr_t)((void*)(key.operator->()));
+    std::cout <<"222\n";
+    //return ret;
+}
+
 #include <QPainter>
 #include <QDir>
 #include <QFileInfo>
+#include "CGALUtil.h"
 #include "DeformWidget.h"
 #include "FaceOutlineReader.h"
+#include <QDebug>
 
 DeformWidget::DeformWidget(QWidget *parent) : QWidget(parent)
 {
@@ -58,8 +69,11 @@ bool DeformWidget::loadMetadata(const QString &path)
         QVector<Vertex_handle> vertexList;
         for(int i = 0; i < points.size(); i++)
         {
-            vertexList.append(cdt.insert(Point(points[i].x(), points[i].y())));
+            Vertex_handle vh = cdt.insert(Point(points[i].x(), points[i].y()));
+            vertexList.append(vh);
+            cgalOutlinesSet.insert(vh);
         }
+        cgalOutlines.insert(it.key(), vertexList);
         qDebug() << "@Line 63";
         for(int i = 0; i < vertexList.size() - 1; i++)
         {
@@ -100,15 +114,33 @@ void DeformWidget::paintEvent(QPaintEvent * event)
         {
             qDebug() << point;
             painter.setBrush(QBrush(Qt::red));
-            painter.drawEllipse(point, 3, 3);
+            painter.drawEllipse(point, 2, 2);
         }
     }
-    for(auto i = cdt.points_begin(); i != cdt.points_end(); i++)
-    {
-        Point p = *i;
-        painter.drawEllipse(p.x(), p.y(), 3, 3);
-    }
     qDebug() << cdt.number_of_vertices();
+    for(auto i = cdt.faces_begin(); i != cdt.faces_end(); i++)
+    {
+        CDT::Face &face = *i;
+        QPointF point0 = CGALUtil::toQtPointF(face.vertex(0)->point());
+        QPointF point1 = CGALUtil::toQtPointF(face.vertex(1)->point());
+        QPointF point2 = CGALUtil::toQtPointF(face.vertex(2)->point());
+        painter.drawLine(point0, point1);
+        painter.drawLine(point1, point2);
+        painter.drawLine(point2, point0);
+    }
+    for(auto i = cdt.vertices_begin(); i != cdt.vertices_end(); i++)
+    {
+        Vertex_handle p = i;
+        if(cgalOutlinesSet.contains(p))
+        {
+            painter.setBrush(QBrush(Qt::red));
+        }
+        else
+        {
+            painter.setBrush(QBrush(Qt::yellow));
+        }
+        painter.drawEllipse(CGALUtil::toQtPointF(p->point()), 2, 2);
+    }
 }
 
 bool DeformWidget::loadImage(const QString& path)

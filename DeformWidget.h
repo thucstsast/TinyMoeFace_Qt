@@ -1,11 +1,11 @@
 #ifndef DEFORMWIDGET_H
 #define DEFORMWIDGET_H
 
+#include "CGALTriangulator.h"
 #include <QMap>
 #include <QWidget>
-#include "CGALTriangulator.h"
-
 #include "FaceOutlineReader.h"
+#include <QSet>
 
 class DeformWidget : public QWidget
 {
@@ -20,6 +20,8 @@ protected:
     QImage *image = nullptr;
     void paintEvent(QPaintEvent * event) override;
     FaceOutlineReader outlineReader;
+    QMap<QString, QVector<Vertex_handle>> cgalOutlines;
+    QSet<Vertex_handle> cgalOutlinesSet;
 public:
     explicit DeformWidget(QWidget *parent = 0);
     virtual bool loadMetadata(const QString& path);
