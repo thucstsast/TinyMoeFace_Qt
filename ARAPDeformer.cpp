@@ -90,3 +90,32 @@ void ARAPDeformer::addStep1ErrorForTriangle(const QPointF &v0, const QPointF &v1
     addStep1ErrorForTriangleEdge(v2, v0, v1, v2Index, v0Index, v1Index);
 }
 
+void ARAPDeformer::step2FitTriangle(Eigen::MatrixXd &mat, const QPointF &sV0, const QPointF &sV1, const QPointF &sV2, const QPointF &tV0, const QPointF &tV1, const QPointF &tV2)
+{
+    Eigen::MatrixXd matrix = Eigen::MatrixXd::Zero(4, 4);
+    Eigen::VectorXd vec(4);
+    float localX, localY;
+    getLocalCoordinate(sV0, sV1, sV2, localX, localY);
+    float localX2 = localX * localX;
+    float localY2 = localY * localY;
+    //The error function is :
+    //dist(v0, tV0)^2 + dist(v1, tV1)^2 + dist(v2, tV2)^2
+    // norm(x) := x . x;
+    // where v0, v1 are free, and v2 = v0 + (v1 - v0) * localX + R90_(v1 - v0) * localY
+    // (v0_x - tv0_x)^2 + (v0_y - tv0_y)^2 + (v1_x - tv1_x)^2 + (v1_y - tv1_y)^2;
+    // % + norm(([v0_x, v0_y] + ([v1_x, v1_y] - [v0_x, v0_y]) * localX + ([v0_y - v1_y, v1_x - v0_x]) * localY) - [tv2_x, tv2_y]);
+    //expand, ratcoeff
+    //matrix order: v0_x, v0_y, v1_x, v1_y
+    matrix(0, 0) = localX2 + localY2 - 2 * localX + 2;
+    matrix(1, 1) = localX2 + localY2 - 2 * localX + 2;
+    matrix(2, 2) = localX2 + localY2 + 1;
+    matrix(0, 2) = -2 * localY * localY - 2 * localX * localX + 2 * localX;
+    matrix(0, 3) = -2 * localY;
+    matrix(1, 2) = 2 * localY;
+    matrix(1, 3) = -2 * localY2 - 2 * localX2 + 2 * localX;
+    vec(0) = -2 * localY * tV2.y() - (2 * localX - 2) * tV2.x() - 2 * tV0.x();
+    vec(1) = (2 * localX - 2) * tV2.y() - 2 * localY * tV2.x()-2 * tV0.y();
+    vec(2) = -2 * localY * tV2.y() - 2 * localX * tV2.x() - 2 * tV1.x();
+    vec(3) = -2 * localX * tV2.y() + 2 * localY * tV2.x() - 2 * tV1.y();
+}
+
