@@ -45,7 +45,7 @@
       <widget class="DeformWidget" name="deformWidget" native="true"/>
      </item>
      <item>
-      <widget class="FaceAlignmentWidget" name="widget" native="true">
+      <widget class="FaceAlignmentWidget" name="faceAlignmentWidget" native="true">
        <property name="minimumSize">
         <size>
          <width>100</width>

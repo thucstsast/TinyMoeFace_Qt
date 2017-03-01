@@ -48,7 +48,8 @@ void DeformDialog::onButtonEnableCamera()
     foreach (const QCameraInfo &cameraInfo, cameras) {
         camera = new QCamera(cameraInfo);
         QMessageBox::information(this, "Camera found.", "Using camera " + cameraInfo.deviceName());
-        camera->start();
+        ui->faceAlignmentWidget->setCamera(camera);
+        ui->faceAlignmentWidget->startCapture();
         return;
     }
 }
