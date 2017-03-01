@@ -31,9 +31,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_3">
+      <widget class="QPushButton" name="buttonDetectCamera">
        <property name="text">
-        <string>PushButton</string>
+        <string>Enable Camera</string>
        </property>
       </widget>
      </item>

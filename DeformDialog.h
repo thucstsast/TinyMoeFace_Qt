@@ -7,9 +7,14 @@ namespace Ui {
 class DeformDialog;
 }
 
+class QCamera;
+
 class DeformDialog : public QDialog
 {
     Q_OBJECT
+
+protected:
+    QCamera *camera;
 
 public:
     explicit DeformDialog(QWidget *parent = 0);
@@ -18,6 +23,7 @@ public:
 public slots:
     void onButtonLoadImage();
     void onButtonEdgeDetect();
+    void onButtonEnableCamera();
 
 private:
     Ui::DeformDialog *ui;
