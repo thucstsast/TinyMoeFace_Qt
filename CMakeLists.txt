@@ -21,11 +21,13 @@ include_directories(
 add_definitions(${Qt5Widgets_DEFINITIONS})
 
 find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Multimedia REQUIRED)
 
 add_library(DeformDialog.ui DeformDialog.ui)
 
 add_executable(${PROJECT_NAME} main.cpp DeformDialog.cpp DeformWidget.cpp
-    FaceOutlineReader.cpp CGALTriangulator.cpp CGALUtil.cpp ARAPDeformer.cpp)
-qt5_use_modules(${PROJECT_NAME} Widgets Gui Core)
+    FaceOutlineReader.cpp CGALTriangulator.cpp CGALUtil.cpp ARAPDeformer.cpp
+    SimpleCameraSurface.cpp FaceAlignmentWidget.cpp)
+qt5_use_modules(${PROJECT_NAME} Multimedia Widgets Gui Core)
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 target_link_libraries(${PROJECT_NAME} ${CGAL_LIBS})

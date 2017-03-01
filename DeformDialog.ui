@@ -40,7 +40,21 @@
     </layout>
    </item>
    <item>
-    <widget class="DeformWidget" name="deformWidget" native="true"/>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="DeformWidget" name="deformWidget" native="true"/>
+     </item>
+     <item>
+      <widget class="FaceAlignmentWidget" name="widget" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>100</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -49,6 +63,12 @@
    <class>DeformWidget</class>
    <extends>QWidget</extends>
    <header>DeformWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FaceAlignmentWidget</class>
+   <extends>QWidget</extends>
+   <header>FaceAlignmentWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
