@@ -2,7 +2,7 @@
 #include "ARAPDeformer.h"
 
 ARAPDeformer::ARAPDeformer(CDT &triangleMesh)
-    :triangleMesh(triangleMesh),
+    :AbstractDeformer(triangleMesh),
       G(triangleMesh.number_of_vertices() * 2, triangleMesh.number_of_vertices() * 2)
 {
 
