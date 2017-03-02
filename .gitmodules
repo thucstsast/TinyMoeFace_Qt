@@ -1,0 +1,3 @@
+[submodule "FaceX"]
+	path = FaceX
+	url = https://github.com/delphifirst/FaceX.git

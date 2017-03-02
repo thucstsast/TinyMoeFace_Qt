@@ -10,6 +10,7 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
+include_directories( "FaceX/FaceX" )
 
 find_package(CGAL REQUIRED)
 include( ${CGAL_USE_FILE} )
@@ -27,7 +28,8 @@ add_library(DeformDialog.ui DeformDialog.ui)
 
 add_executable(${PROJECT_NAME} main.cpp DeformDialog.cpp DeformWidget.cpp
     FaceOutlineReader.cpp CGALTriangulator.cpp CGALUtil.cpp ARAPDeformer.cpp
-    SimpleCameraSurface.cpp FaceAlignmentWidget.cpp)
+    SimpleCameraSurface.cpp FaceAlignmentWidget.cpp FaceX/FaceX/fern.cpp FaceX/FaceX/utils.cpp
+    FaceX/FaceX/face_x.cpp FaceX/FaceX/regressor.cpp)
 qt5_use_modules(${PROJECT_NAME} Multimedia Widgets Gui Core)
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 target_link_libraries(${PROJECT_NAME} ${CGAL_LIBS})
