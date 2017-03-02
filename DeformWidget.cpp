@@ -100,6 +100,35 @@ void DeformWidget::paintEvent(QPaintEvent * event)
 {
     QWidget::paintEvent(event);
     QPainter painter(this);
+    //Some code for testing tranform
+    QPixmap testPixmap(100, 100);
+    testPixmap.fill();
+    QPainter testPainter(&testPixmap);
+    for(int i = 0; i < 10; i++)
+    {
+        for(int j = 0; j < 10; j++)
+        {
+            testPainter.drawText(i * 10, j * 10, QString::number(i * 10 + j));
+        }
+    }
+    painter.setBrush(QBrush(testPixmap));
+    QPointF p1(50, 10), p2(30, 70), p3(70, 70);
+    QPointF q1(10, 110), q2(30, 170), q3(70, 130);
+    QPolygonF poly1;
+    poly1.append(p1);
+    poly1.append(p2);
+    poly1.append(p3);
+    painter.drawPolygon(poly1);
+    painter.drawRect(200, 200, 200, 200);
+    QPolygonF quad1, quad2;
+    quad1 << p1 << p2 << (p2 + p3) - p1 << p3;
+    quad2 << q1 << q2 << (q2 + q3) - q1 << q3;
+    QTransform transform;
+    QTransform::quadToQuad(quad1, quad2, transform);
+    painter.setTransform(transform);
+    painter.drawPolygon(poly1);
+    //painter.drawPixmap(0, 0, testPixmap);
+    //End testing.
     for(const QString& layerName : layerOrder)
     {
         painter.drawImage(0, 0, *layers[layerName]);
