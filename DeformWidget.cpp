@@ -103,8 +103,21 @@ void DeformWidget::paintEvent(QPaintEvent * event)
 {
     QWidget::paintEvent(event);
     QPainter painter(this);
+    if(layers.empty())
+    {
+        return;
+    }
+    for(const QString& layerName : layerOrder)
+    {
+        qDebug() << layerName;
+        if(layerName != "face")
+        {
+            painter.drawImage(0, 0, *layers[layerName]);
+        }
+    }
+    auto &faceTemplate = *layers["face"];
     //Some code for testing tranform
-    QPixmap testPixmap(100, 100);
+    /*QPixmap testPixmap(100, 100);
     testPixmap.fill();
     QPainter testPainter(&testPixmap);
     for(int i = 0; i < 10; i++)
@@ -113,50 +126,51 @@ void DeformWidget::paintEvent(QPaintEvent * event)
         {
             testPainter.drawText(i * 10, j * 10, QString::number(i * 10 + j));
         }
+    }*/
+    painter.setBrush(QBrush(faceTemplate));
+    for(auto i = cdt.faces_begin(); i != cdt.faces_end(); i++)
+    {
+        CDT::Face &face = *i;
+        QPointF p1 = CGALUtil::toQtPointF(face.vertex(0)->point());
+        QPointF p2 = CGALUtil::toQtPointF(face.vertex(1)->point());
+        QPointF p3 = CGALUtil::toQtPointF(face.vertex(2)->point());
+        QPointF q1 = deformer->getVertexPosition(face.vertex(0));
+        QPointF q2 = deformer->getVertexPosition(face.vertex(1));
+        QPointF q3 = deformer->getVertexPosition(face.vertex(2));
+        QPolygonF poly1;
+        poly1.append(p1);
+        poly1.append(p2);
+        poly1.append(p3);
+        QPolygonF quad1, quad2;
+        quad1 << p1 << p2 << (p2 + p3) - p1 << p3;
+        quad2 << q1 << q2 << (q2 + q3) - q1 << q3;
+        QTransform transform;
+        QTransform::quadToQuad(quad1, quad2, transform);
+        painter.setTransform(transform);
+        painter.drawPolygon(poly1);
     }
-    painter.setBrush(QBrush(testPixmap));
-    QPointF p1(50, 10), p2(30, 70), p3(70, 70);
-    QPointF q1(10, 110), q2(30, 170), q3(70, 130);
+    painter.resetTransform();
+    /*QPointF q1(10, 110), q2(30, 170), q3(70, 130);
     QPolygonF poly1;
     poly1.append(p1);
     poly1.append(p2);
     poly1.append(p3);
     painter.drawPolygon(poly1);
     painter.drawRect(200, 200, 200, 200);
-    QPolygonF quad1, quad2;
-    quad1 << p1 << p2 << (p2 + p3) - p1 << p3;
-    quad2 << q1 << q2 << (q2 + q3) - q1 << q3;
-    QTransform transform;
-    QTransform::quadToQuad(quad1, quad2, transform);
-    painter.setTransform(transform);
-    painter.drawPolygon(poly1);
-    painter.resetTransform();
+;*/
     //painter.drawPixmap(0, 0, testPixmap);
     //End testing.
-    for(const QString& layerName : layerOrder)
-    {
-        //painter.drawImage(0, 0, *layers[layerName]);
-    }
+
+
     const auto &outline = outlineReader.getOutlines();
     QPainterPath path;
     QMapIterator<QString, QVector<QPointF>> i(outline);
-    while (i.hasNext())
-    {
-        i.next();
-        for(const QPointF& point : i.value())
-        {
-            qDebug() << point;
-            painter.setBrush(QBrush(Qt::red));
-            painter.drawEllipse(point, 2, 2);
-        }
-    }
-    qDebug() << cdt.number_of_vertices();
     for(auto i = cdt.faces_begin(); i != cdt.faces_end(); i++)
     {
         CDT::Face &face = *i;
-        QPointF point0 = CGALUtil::toQtPointF(face.vertex(0)->point());
-        QPointF point1 = CGALUtil::toQtPointF(face.vertex(1)->point());
-        QPointF point2 = CGALUtil::toQtPointF(face.vertex(2)->point());
+        QPointF point0 = deformer->getVertexPosition(face.vertex(0));
+        QPointF point1 = deformer->getVertexPosition(face.vertex(1));
+        QPointF point2 = deformer->getVertexPosition(face.vertex(2));
         painter.drawLine(point0, point1);
         painter.drawLine(point1, point2);
         painter.drawLine(point2, point0);
@@ -176,7 +190,7 @@ void DeformWidget::paintEvent(QPaintEvent * event)
         {
             painter.setBrush(QBrush(Qt::yellow));
         }
-        painter.drawEllipse(CGALUtil::toQtPointF(p->point()), 2, 2);
+        painter.drawEllipse(deformer->getVertexPosition(p), 2, 2);
     }
 }
 
@@ -195,16 +209,14 @@ void DeformWidget::mousePressEvent(QMouseEvent *event)
     mousePressed = true;
     Vertex_handle nearestVertex;
     bool found = false;
-    qDebug() << event->pos();
-    for(Vertex_handle vertextHandle : cgalOutlinesSet)
+    for(Vertex_handle vertexHandle : cgalOutlinesSet)
     {
-        QPointF vertexLocation = CGALUtil::toQtPointF(vertextHandle->point());
+        QPointF vertexLocation = deformer->getVertexPosition(vertexHandle);
         auto delta = vertexLocation - QPointF(event->pos());
         if(delta.x() * delta.x() + delta.y() * delta.y() < 5 * 5)
         {
-            qDebug() << "Found!";
             found = true;
-            nearestVertex = vertextHandle;
+            nearestVertex = vertexHandle;
         }
     }
     if(found)

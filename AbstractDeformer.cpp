@@ -3,7 +3,11 @@
 AbstractDeformer::AbstractDeformer(CDT &triangleMesh)
     :triangleMesh(triangleMesh)
 {
-
+    for(auto i = triangleMesh.vertices_begin(); i != triangleMesh.vertices_end(); i++)
+    {
+        originalVertexPos[i] = CGALUtil::toQtPointF(i->point());
+    }
+    modifiedVertexPos = originalVertexPos;
 }
 
 bool AbstractDeformer::addConstrainedVertex(CDT::Vertex_handle vertexHandle)
@@ -30,4 +34,9 @@ void AbstractDeformer::moveVertex(CDT::Vertex_handle vertexHandle, const QPointF
 {
     constrainedVertices[vertexHandle] = location;
     updateVertices();
+}
+
+QPointF AbstractDeformer::getVertexPosition(CDT::Vertex_handle vertexHandle)
+{
+    return modifiedVertexPos[vertexHandle];
 }
