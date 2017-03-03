@@ -28,7 +28,7 @@ add_library(DeformDialog.ui DeformDialog.ui)
 
 add_executable(${PROJECT_NAME} main.cpp DeformDialog.cpp DeformWidget.cpp
     FaceOutlineReader.cpp CGALTriangulator.cpp CGALUtil.cpp
-    AbstractDeformer.cpp ARAPDeformer.cpp PhysicsDeformer.cpp
+    AbstractDeformer.cpp ARAPDeformer.cpp SimpleDeformer.cpp
     SimpleCameraSurface.cpp FaceAlignmentWidget.cpp
     FaceX/FaceX/fern.cpp FaceX/FaceX/utils.cpp
     FaceX/FaceX/face_x.cpp FaceX/FaceX/regressor.cpp)

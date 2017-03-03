@@ -1,13 +1,13 @@
 #include <QDebug>
-#include "PhysicsDeformer.h"
+#include "SimpleDeformer.h"
 
-PhysicsDeformer::PhysicsDeformer(CDT& triangleMesh)
+SimpleDeformer::SimpleDeformer(CDT& triangleMesh)
     :AbstractDeformer(triangleMesh)
 {
 
 }
 
-void PhysicsDeformer::updateVertices()
+void SimpleDeformer::updateVertices()
 {
     for(auto i = triangleMesh.vertices_begin(); i != triangleMesh.vertices_end(); i++)
     {

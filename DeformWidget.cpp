@@ -14,6 +14,7 @@ uint qHash(const Vertex_handle &key)
 #include "CGALUtil.h"
 #include "DeformWidget.h"
 #include "FaceOutlineReader.h"
+#include "SimpleDeformer.h"
 #include <QDebug>
 
 DeformWidget::DeformWidget(QWidget *parent) : QWidget(parent)
@@ -92,7 +93,7 @@ bool DeformWidget::loadMetadata(const QString &path)
     cdt.insert_constraint(vd, va);*/
     CGALTriangulator triangulator;
     triangulator.triangulate(cdt);
-    deformer = new PhysicsDeformer(cdt);
+    deformer = new SimpleDeformer(cdt);
     for(Vertex_handle vertexHandle : cgalOutlinesSet)
     {
         deformer->addConstrainedVertex(vertexHandle);

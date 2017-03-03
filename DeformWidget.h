@@ -1,12 +1,13 @@
 #ifndef DEFORMWIDGET_H
 #define DEFORMWIDGET_H
 
-#include "PhysicsDeformer.h"
 #include "CGALTriangulator.h"
 #include <QMap>
 #include <QWidget>
 #include "FaceOutlineReader.h"
 #include <QSet>
+
+class AbstractDeformer;
 
 class DeformWidget : public QWidget
 {
