@@ -1,6 +1,7 @@
 #ifndef DEFORMWIDGET_H
 #define DEFORMWIDGET_H
 
+#include "PhysicsDeformer.h"
 #include "CGALTriangulator.h"
 #include <QMap>
 #include <QWidget>
@@ -12,6 +13,10 @@ class DeformWidget : public QWidget
     Q_OBJECT
 protected:
     CDT cdt;
+    Vertex_handle selectedVertex;
+    bool mousePressed = false;
+    bool hasSelectedVertex = false;
+    AbstractDeformer *deformer;
     int imageWidth = -1;
     int imageHeight = -1;
     QMap<QString, QImage*> layers;
@@ -22,6 +27,10 @@ protected:
     FaceOutlineReader outlineReader;
     QMap<QString, QVector<Vertex_handle>> cgalOutlines;
     QSet<Vertex_handle> cgalOutlinesSet;
+
+    virtual void mouseMoveEvent(QMouseEvent *event) override;
+    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
 public:
     explicit DeformWidget(QWidget *parent = 0);
     virtual bool loadMetadata(const QString& path);

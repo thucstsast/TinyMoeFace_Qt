@@ -4,12 +4,10 @@
 
 uint qHash(const Vertex_handle &key)
 {
-    std::cout <<"111\n";
     return (intptr_t)((void*)(key.operator->()));
-    std::cout <<"222\n";
-    //return ret;
 }
 
+#include <QMouseEvent>
 #include <QPainter>
 #include <QDir>
 #include <QFileInfo>
@@ -94,6 +92,11 @@ bool DeformWidget::loadMetadata(const QString &path)
     cdt.insert_constraint(vd, va);*/
     CGALTriangulator triangulator;
     triangulator.triangulate(cdt);
+    deformer = new PhysicsDeformer(cdt);
+    for(Vertex_handle vertexHandle : cgalOutlinesSet)
+    {
+        deformer->addConstrainedVertex(vertexHandle);
+    }
 }
 
 void DeformWidget::paintEvent(QPaintEvent * event)
@@ -127,11 +130,12 @@ void DeformWidget::paintEvent(QPaintEvent * event)
     QTransform::quadToQuad(quad1, quad2, transform);
     painter.setTransform(transform);
     painter.drawPolygon(poly1);
+    painter.resetTransform();
     //painter.drawPixmap(0, 0, testPixmap);
     //End testing.
     for(const QString& layerName : layerOrder)
     {
-        painter.drawImage(0, 0, *layers[layerName]);
+        //painter.drawImage(0, 0, *layers[layerName]);
     }
     const auto &outline = outlineReader.getOutlines();
     QPainterPath path;
@@ -160,9 +164,13 @@ void DeformWidget::paintEvent(QPaintEvent * event)
     for(auto i = cdt.vertices_begin(); i != cdt.vertices_end(); i++)
     {
         Vertex_handle p = i;
-        if(cgalOutlinesSet.contains(p))
+        if(hasSelectedVertex && p == selectedVertex)
         {
             painter.setBrush(QBrush(Qt::red));
+        }
+        else if(cgalOutlinesSet.contains(p))
+        {
+            painter.setBrush(QBrush(Qt::blue));
         }
         else
         {
@@ -170,6 +178,52 @@ void DeformWidget::paintEvent(QPaintEvent * event)
         }
         painter.drawEllipse(CGALUtil::toQtPointF(p->point()), 2, 2);
     }
+}
+
+void DeformWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if(!mousePressed) return;
+    if(!hasSelectedVertex) return;
+    deformer->moveVertex(selectedVertex, QPointF(event->pos()));
+    repaint();
+}
+
+void DeformWidget::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button() != Qt::MouseButton::LeftButton)
+        return;
+    mousePressed = true;
+    Vertex_handle nearestVertex;
+    bool found = false;
+    qDebug() << event->pos();
+    for(Vertex_handle vertextHandle : cgalOutlinesSet)
+    {
+        QPointF vertexLocation = CGALUtil::toQtPointF(vertextHandle->point());
+        auto delta = vertexLocation - QPointF(event->pos());
+        if(delta.x() * delta.x() + delta.y() * delta.y() < 5 * 5)
+        {
+            qDebug() << "Found!";
+            found = true;
+            nearestVertex = vertextHandle;
+        }
+    }
+    if(found)
+    {
+        selectedVertex = nearestVertex;
+        hasSelectedVertex = true;
+    }
+    else
+    {
+        hasSelectedVertex = false;
+    }
+    repaint();
+}
+
+void DeformWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(event->button() != Qt::MouseButton::LeftButton)
+        return;
+    mousePressed = false;
 }
 
 bool DeformWidget::loadImage(const QString& path)

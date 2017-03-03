@@ -6,7 +6,8 @@
 class PhysicsDeformer : public AbstractDeformer
 {
 public:
-    PhysicsDeformer(CDT& triangleMesh);;
+    PhysicsDeformer(CDT& triangleMesh);
+    void updateVertices() override;
 };
 
 #endif // PHYSICSDEFORMER_H
