@@ -395,8 +395,53 @@ void DeformWidget::onTrackingTimer()
     }
     for(auto vh : cgalOutlineMaps["eye_right"])
     {
-        deformer->moveVertex(vh, CGALUtil::toQtPointF(vh->point()) - QPointF(0, 350 * deformRatioRightEye));
+        deformer->moveVertex(vh, CGALUtil::toQtPointF(vh->point()) - QPointF(0, 350 * deformRatioRightEye), false);
     }
+
+    double eLeftY = 0.0;
+    double eRightY = 0.0;
+
+    for(auto vh : cgalOutlineMaps["e_left"])
+    {
+        eLeftY += vh->point().y();
+    }
+    eLeftY /= cgalOutlineMaps["e_left"].size();
+
+    for(auto vh : cgalOutlineMaps["e_right"])
+    {
+        eRightY += vh->point().y();
+    }
+    eRightY /= cgalOutlineMaps["e_right"].size();
+
+    for(auto vh : cgalOutlineMaps["e_left"])
+    {
+        if(deformRatioLeftEye < 0)
+        {
+            deformer->moveVertex(vh, CGALUtil::toQtPointF(vh->point()) - QPointF(0, (vh->point().y() - eLeftY) * 5 * -deformRatioLeftEye), false);
+        }
+        else
+        {
+            deformer->moveVertex(vh, CGALUtil::toQtPointF(vh->point()), false);
+        }
+    }
+
+    for(auto vh : cgalOutlineMaps["e_right"])
+    {
+        if(deformRatioRightEye < 0)
+        {
+            deformer->moveVertex(vh, CGALUtil::toQtPointF(vh->point()) - QPointF(0, (vh->point().y() - eLeftY) * 5 * -deformRatioRightEye), false);
+        }
+        else
+        {
+            deformer->moveVertex(vh, CGALUtil::toQtPointF(vh->point()), false);
+        }
+    }
+
+    deformer->updateVertices();
+    /*for(auto vh : cgalOutlineMaps["eye_right"])
+    {
+        deformer->moveVertex(vh, CGALUtil::toQtPointF(vh->point()) - QPointF(0, 350 * deformRatioLeftEye));
+    }*/
 
     for(int i = FaceAlignmentWidget::LANDMARK_EYE_LEFT_BEGIN; i <= FaceAlignmentWidget::LANDMARK_EYE_LEFT_END; i++)
     {
