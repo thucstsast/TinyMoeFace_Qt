@@ -118,4 +118,3 @@ void ARAPDeformer::step2FitTriangle(Eigen::MatrixXd &mat, const QPointF &sV0, co
     vec(2) = -2 * localY * tV2.y() - 2 * localX * tV2.x() - 2 * tV1.x();
     vec(3) = -2 * localX * tV2.y() + 2 * localY * tV2.x() - 2 * tV1.y();
 }
-
