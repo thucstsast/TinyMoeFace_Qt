@@ -1,4 +1,5 @@
 #include "CGALTriangulator.h"
+#include "FaceAlignmentWidget.h"
 #include <vector>
 #include <opencv/cv.hpp>
 
@@ -7,6 +8,7 @@ uint qHash(const Vertex_handle &key)
     return (intptr_t)((void*)(key.operator->()));
 }
 
+#include <QTimer>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QDir>
@@ -63,14 +65,16 @@ bool DeformWidget::loadMetadata(const QString &path)
     while (it.hasNext())
     {
         it.next();
-        qDebug() << "@Line 56";
+        qDebug() << it.key();
         const QVector<QPointF>& points = it.value();
+        qDebug() << points.size();
         QVector<Vertex_handle> vertexList;
         for(int i = 0; i < points.size(); i++)
         {
             Vertex_handle vh = cdt.insert(Point(points[i].x(), points[i].y()));
             vertexList.append(vh);
             cgalOutlinesSet.insert(vh);
+            cgalOutlineMaps[it.key()].insert(vh);
         }
         cgalOutlines.insert(it.key(), vertexList);
         qDebug() << "@Line 63";
@@ -307,12 +311,118 @@ void DeformWidget::reset()
     repaint();
 }
 
-void DeformWidget::enbaleTracking()
+void DeformWidget::evaluateKeyPoints(
+        const std::vector<cv::Point2d>* points,
+        QPointF& p1, QPointF& p2, QPointF& p3, QPointF& p4, QPointF& p5, QPointF& p6)
 {
+    p1 = QPointF(0, 0);
+    for(int i = FaceAlignmentWidget::LANDMARK_EYE_LEFT_BEGIN; i <= FaceAlignmentWidget::LANDMARK_EYE_LEFT_END; i++)
+    {
+        p1.setX(p1.x() + (*points)[i].x);
+        p1.setY(p1.y() + (*points)[i].y);
+    }
+    p1 /= (FaceAlignmentWidget::LANDMARK_EYE_LEFT_END - FaceAlignmentWidget::LANDMARK_EYE_LEFT_BEGIN + 1);
 
+    p2 = QPointF(0, 0);
+    for(int i = FaceAlignmentWidget::LANDMARK_EYE_RIGHT_BEGIN; i <= FaceAlignmentWidget::LANDMARK_EYE_RIGHT_END; i++)
+    {
+        p2.setX(p2.x() + (*points)[i].x);
+        p2.setY(p2.y() + (*points)[i].y);
+    }
+    p2 /= (FaceAlignmentWidget::LANDMARK_EYE_RIGHT_END - FaceAlignmentWidget::LANDMARK_EYE_RIGHT_BEGIN + 1);
+
+    p3 = QPointF(0, 0);
+    for(int i = FaceAlignmentWidget::LANDMARK_EYEBROW_LEFT_BEGIN; i <= FaceAlignmentWidget::LANDMARK_EYEBROW_LEFT_END; i++)
+    {
+        p3.setX(p3.x() + (*points)[i].x);
+        p3.setY(p3.y() + (*points)[i].y);
+    }
+    p3 /= (FaceAlignmentWidget::LANDMARK_EYEBROW_LEFT_END - FaceAlignmentWidget::LANDMARK_EYEBROW_LEFT_BEGIN + 1);
+
+    p4 = QPointF(0, 0);
+    for(int i = FaceAlignmentWidget::LANDMARK_EYEBROW_RIGHT_BEGIN; i <= FaceAlignmentWidget::LANDMARK_EYEBROW_RIGHT_END; i++)
+    {
+        p4.setX(p4.x() + (*points)[i].x);
+        p4.setY(p4.y() + (*points)[i].y);
+    }
+    p4 /= (FaceAlignmentWidget::LANDMARK_EYEBROW_RIGHT_END - FaceAlignmentWidget::LANDMARK_EYEBROW_RIGHT_BEGIN + 1);
+
+    p5 = QPointF(0, 0);
+    for(int i = FaceAlignmentWidget::LANDMARK_NOSE_BEGIN; i <= FaceAlignmentWidget::LANDMARK_NOSE_END; i++)
+    {
+        p5.setX(p5.x() + (*points)[i].x);
+        p5.setY(p5.y() + (*points)[i].y);
+    }
+    p5 /= (FaceAlignmentWidget::LANDMARK_NOSE_END - FaceAlignmentWidget::LANDMARK_NOSE_BEGIN + 1);
+
+    p6 = QPointF(0, 0);
+    for(int i = FaceAlignmentWidget::LANDMARK_EYE_MOUSE_BEGIN; i <= FaceAlignmentWidget::LANDMARK_EYE_MOUSE_END; i++)
+    {
+        p6.setX(p6.x() + (*points)[i].x);
+        p6.setY(p6.y() + (*points)[i].y);
+    }
+    p6 /= (FaceAlignmentWidget::LANDMARK_EYE_MOUSE_END - FaceAlignmentWidget::LANDMARK_EYE_MOUSE_BEGIN + 1);
+}
+
+void DeformWidget::onTrackingTimer()
+{
+    QPointF leftEyePos(0.0f, 0.0f), rightEyePos(0.0f, 0.0f), leftBrowPos(0.0f, 0.0f), rightBrowPos(0.0f, 0.0f);
+    QPointF nosePos(0.0f, 0.0f), mouthPos(0.0f, 0.0f);
+    QPointF origLeftEyePos(0.0f, 0.0f), origRightEyePos(0.0f, 0.0f), origLeftBrowPos(0.0f, 0.0f), origRightBrowPos(0.0f, 0.0f);
+    QPointF origNosePos(0.0f, 0.0f), origMouthPos(0.0f, 0.0f);
+    evaluateKeyPoints(landmarks, leftEyePos, rightEyePos, leftBrowPos, rightBrowPos, nosePos, mouthPos);
+    evaluateKeyPoints(originalLandmarks, origLeftEyePos, origRightEyePos, origLeftBrowPos, origRightBrowPos, origNosePos, origMouthPos);
+    double seg11 = leftBrowPos.y() - (leftEyePos.y() + rightEyePos.y()) / 2.0;
+    double seg12 = rightBrowPos.y() - (leftEyePos.y() + rightEyePos.y()) / 2.0;
+    double seg2 = ((leftEyePos.y() + rightEyePos.y()) / 2.0) - nosePos.y();
+    double seg3 = nosePos.y() - mouthPos.y();
+
+    double origSeg11 = origLeftBrowPos.y() - ((origLeftEyePos.y() + origRightEyePos.y()) / 2.0);
+    double origSeg12 = origRightBrowPos.y() - ((origLeftEyePos.y() + origRightEyePos.y()) / 2.0);
+    double origSeg2 = ((origLeftEyePos.y() + origRightEyePos.y()) / 2.0) - origNosePos.y();
+    double origSeg3 = origNosePos.y() - origMouthPos.y();
+
+    double deformRatioLeftEye = ((seg11 / seg2) - (origSeg11 / origSeg2)) / (origSeg11 / origSeg2);
+    double deformRatioRightEye = ((seg12 / seg2) - (origSeg12 / origSeg2)) / (origSeg12 / origSeg2);
+    if(deformRatioLeftEye > 0.1) deformRatioLeftEye = 0.1;
+    if(deformRatioLeftEye < -0.1) deformRatioLeftEye = -0.1;
+    if(deformRatioRightEye > 0.1) deformRatioRightEye = 0.1;
+    if(deformRatioRightEye < -0.1) deformRatioRightEye = -0.1;
+    //deformRatio = 0.1;
+    for(auto vh : cgalOutlineMaps["eye_left"])
+    {
+        deformer->moveVertex(vh, CGALUtil::toQtPointF(vh->point()) - QPointF(0, 350 * deformRatioLeftEye));
+    }
+    for(auto vh : cgalOutlineMaps["eye_right"])
+    {
+        deformer->moveVertex(vh, CGALUtil::toQtPointF(vh->point()) - QPointF(0, 350 * deformRatioRightEye));
+    }
+
+    for(int i = FaceAlignmentWidget::LANDMARK_EYE_LEFT_BEGIN; i <= FaceAlignmentWidget::LANDMARK_EYE_LEFT_END; i++)
+    {
+        //leftEyePos += ;
+    }
+    for(int i = FaceAlignmentWidget::LANDMARK_EYE_RIGHT_BEGIN; i <= FaceAlignmentWidget::LANDMARK_EYE_RIGHT_END; i++)
+    {
+        leftEyePos;
+    }
+    repaint();
+}
+
+void DeformWidget::enbaleTracking(const std::vector<cv::Point2d> &originalLandmarks, const std::vector<cv::Point2d> &landmarks)
+{
+    this->originalLandmarks = &originalLandmarks;
+    this->landmarks = &landmarks;
+    trackingTimer = new QTimer(this);
+    trackingTimer->setInterval(50);
+    trackingTimer->setSingleShot(false);
+    trackingTimer->start();
+    connect(trackingTimer, SIGNAL(timeout()), this, SLOT(onTrackingTimer()));
 }
 
 void DeformWidget::disableTracking()
 {
-
+    this->originalLandmarks = this->landmarks = nullptr;
+    trackingTimer->stop();
+    delete trackingTimer;
 }

@@ -26,6 +26,8 @@ void FaceAlignmentWidget::paintEvent(QPaintEvent * event)
     cv::Mat img;
 
         cv::cvtColor(cvFrame, img, cv::COLOR_BGR2GRAY);
+        //cv::Mat denoiseFrame;
+        //cv::fastNlMeansDenoisingColored(cvFrame, denoiseFrame);
         //cv::imshow("Gray image", img);
 
         std::vector<cv::Point2d> original_landmarks = faceXLandmarks;
@@ -102,7 +104,6 @@ void FaceAlignmentWidget::stopCapture()
 
 void FaceAlignmentWidget::onFrameAvailable(QImage frame)
 {
-    qDebug() << frame.size();
     currentFrame = frame;
     repaint();
 }
@@ -117,20 +118,26 @@ void FaceAlignmentWidget::onCameraStateChanged(QCamera::State state)
     auto viewFinderSettings = camera->viewfinderSettings();
     viewFinderSettings.setResolution(QSize(640, 480));
     camera->setViewfinderSettings(viewFinderSettings);
+    qDebug() << "???";
+    qDebug() << camera->imageProcessing()->isAvailable();
+    camera->imageProcessing()->setDenoisingLevel(1.0);
     setMinimumSize(640, 480);
 }
 
 void FaceAlignmentWidget::mousePressEvent(QMouseEvent *event)
 {
-    QWidget::mousePressEvent(event);
+    //QWidget::mousePressEvent(event);
     std::vector<cv::Rect> faces;
     QImage rgbImage = currentFrame.convertToFormat(QImage::Format_RGB888);
     cv::Mat cvFrame(rgbImage.height(),rgbImage.width(),CV_8UC3,rgbImage.scanLine(0));
+    //cv::Mat denoiseFrame;
+    //cv::fastNlMeansDenoisingColored(cvFrame, denoiseFrame);
     cv::Mat img;
     cv::cvtColor(cvFrame, img, cv::COLOR_BGR2GRAY);
     openCVcascadeClassifier->detectMultiScale(img, faces);
     if (!faces.empty())
     {
         faceXLandmarks = faceXObject->Alignment(img, faces[0]);
+        faceXOriginalLandmarks = faceXLandmarks;
     }
 }

@@ -24,6 +24,7 @@ public slots:
     void onButtonLoadImage();
     void onButtonEdgeDetect();
     void onButtonEnableCamera();
+    void onButtonEnableTracking(bool toggle);
 
 private:
     Ui::DeformDialog *ui;

@@ -15,6 +15,7 @@ DeformDialog::DeformDialog(QWidget *parent) :
     connect(ui->buttonEdgeDetect, SIGNAL(clicked(bool)), this, SLOT(onButtonEdgeDetect()));
     connect(ui->buttonDetectCamera, SIGNAL(clicked(bool)), this, SLOT(onButtonEnableCamera()));
     connect(ui->buttonReset, SIGNAL(clicked(bool)), ui->deformWidget, SLOT(reset()));
+    connect(ui->buttonTracking, SIGNAL(toggled(bool)), this, SLOT(onButtonEnableTracking(bool)));
 }
 
 DeformDialog::~DeformDialog()
@@ -52,5 +53,21 @@ void DeformDialog::onButtonEnableCamera()
         ui->faceAlignmentWidget->setCamera(camera);
         ui->faceAlignmentWidget->startCapture();
         return;
+    }
+}
+
+void DeformDialog::onButtonEnableTracking(bool toggle)
+{
+    if(toggle)
+    {
+        qDebug() << "onButtonEnableTracking";
+        ui->deformWidget->enbaleTracking(
+            ui->faceAlignmentWidget->faceXOriginalLandmarks,
+            ui->faceAlignmentWidget->faceXLandmarks);
+    }
+    else
+    {
+        qDebug() << "onButtonDisableTracking";
+        ui->deformWidget->disableTracking();
     }
 }

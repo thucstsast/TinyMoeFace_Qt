@@ -53,8 +53,8 @@ bool SimpleCameraSurface::present(const QVideoFrame &frame)
                            cloneFrame.width(),
                            cloneFrame.height(),
                            QVideoFrame::imageFormatFromPixelFormat(cloneFrame .pixelFormat()));
-        emit frameAvailable(image);
         cloneFrame.unmap();
+        emit frameAvailable(image);
         return true;
     }
     return false;
