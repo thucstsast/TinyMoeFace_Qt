@@ -30,10 +30,11 @@ const QMap<CDT::Vertex_handle, QPointF> &AbstractDeformer::getConstrainedVerices
     return constrainedVertices;
 }
 
-void AbstractDeformer::moveVertex(CDT::Vertex_handle vertexHandle, const QPointF &location)
+void AbstractDeformer::moveVertex(CDT::Vertex_handle vertexHandle, const QPointF &location, bool update)
 {
     constrainedVertices[vertexHandle] = location;
-    updateVertices();
+    if(update)
+        updateVertices();
 }
 
 QPointF AbstractDeformer::getVertexPosition(CDT::Vertex_handle vertexHandle)

@@ -37,10 +37,13 @@ public:
     virtual bool loadMetadata(const QString& path);
     virtual bool loadImage(const QString& path);
     virtual void performEdgeDetect();
+    virtual void enbaleTracking();
+    virtual void disableTracking();
 
 signals:
 
 public slots:
+    virtual void reset();
 };
 
 #endif // DEFORMWIDGET_H

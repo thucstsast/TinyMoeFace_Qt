@@ -14,6 +14,7 @@ DeformDialog::DeformDialog(QWidget *parent) :
     connect(ui->buttonLoadImage, SIGNAL(clicked(bool)), this, SLOT(onButtonLoadImage()));
     connect(ui->buttonEdgeDetect, SIGNAL(clicked(bool)), this, SLOT(onButtonEdgeDetect()));
     connect(ui->buttonDetectCamera, SIGNAL(clicked(bool)), this, SLOT(onButtonEnableCamera()));
+    connect(ui->buttonReset, SIGNAL(clicked(bool)), ui->deformWidget, SLOT(reset()));
 }
 
 DeformDialog::~DeformDialog()

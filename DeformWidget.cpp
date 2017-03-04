@@ -111,7 +111,7 @@ void DeformWidget::paintEvent(QPaintEvent * event)
     for(const QString& layerName : layerOrder)
     {
         qDebug() << layerName;
-        if(layerName != "face" && layerName != "eyebrow")
+        if(layerName != "face" && layerName != "eyebrow" && layerName != "mouth")
         {
             painter.drawImage(0, 0, *layers[layerName]);
         }
@@ -287,4 +287,32 @@ void DeformWidget::performEdgeDetect()
         cv::Vec4i & temp = contoursHierarchy[i];
         qDebug() << temp[0] << temp[1] << temp[2] << temp[3];
     }
+}
+
+void DeformWidget::reset()
+{
+    for(Vertex_handle vertexHandle : cgalOutlinesSet)
+    {
+        QPointF originalPosition = CGALUtil::toQtPointF(vertexHandle->point());
+        deformer->moveVertex(vertexHandle, originalPosition, false);
+        /*QPointF vertexLocation = deformer->getVertexPosition(vertexHandle);
+        auto delta = vertexLocation - QPointF(event->pos());
+        if(delta.x() * delta.x() + delta.y() * delta.y() < 5 * 5)
+        {
+            found = true;
+            nearestVertex = vertexHandle;
+        }*/
+    }
+    deformer->updateVertices();
+    repaint();
+}
+
+void DeformWidget::enbaleTracking()
+{
+
+}
+
+void DeformWidget::disableTracking()
+{
+
 }

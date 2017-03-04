@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>305</width>
-    <height>303</height>
+    <width>484</width>
+    <height>289</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,6 +20,23 @@
       <widget class="QPushButton" name="buttonLoadImage">
        <property name="text">
         <string>Load Image</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonReset">
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonTracking">
+       <property name="text">
+        <string>Tracking</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

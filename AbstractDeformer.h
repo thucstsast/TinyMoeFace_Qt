@@ -18,7 +18,7 @@ public:
     virtual bool addConstrainedVertex(CDT::Vertex_handle vertexHandle);
     virtual bool removeConstrainedVertex(CDT::Vertex_handle vertexHandle);
     virtual const QMap<CDT::Vertex_handle, QPointF>& getConstrainedVerices();
-    virtual void moveVertex(CDT::Vertex_handle vertexHandle, const QPointF& location);
+    virtual void moveVertex(CDT::Vertex_handle vertexHandle, const QPointF& location, bool update = true);
     virtual QPointF getVertexPosition(CDT::Vertex_handle vertexHandle);
     virtual void updateVertices() = 0;
 };
