@@ -49,6 +49,7 @@ public:
             QPointF&, QPointF&, QPointF&, QPointF&, QPointF&, QPointF&);
     virtual void enbaleTracking(const std::vector<cv::Point2d>& originalLandmarks, const std::vector<cv::Point2d>& landmarks);
     virtual void disableTracking();
+    virtual void changeColor(const QString& layerName);
 
 signals:
 

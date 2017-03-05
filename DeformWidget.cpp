@@ -2,6 +2,7 @@
 #include "FaceAlignmentWidget.h"
 #include <vector>
 #include <opencv/cv.hpp>
+#include <QColorDialog>
 
 uint qHash(const Vertex_handle &key)
 {
@@ -200,6 +201,19 @@ void DeformWidget::mouseMoveEvent(QMouseEvent *event)
 
 void DeformWidget::mousePressEvent(QMouseEvent *event)
 {
+    if(event->button() == Qt::MouseButton::RightButton)
+    {
+        if(event->y() <= 300)
+        {
+            changeColor("hair");
+            qDebug() << "Region1";
+        }
+        else if(event->y() <= 500)
+        {
+            changeColor("iris");
+            qDebug() << "Region2";
+        }
+    }
     if(event->button() != Qt::MouseButton::LeftButton)
         return;
     mousePressed = true;
@@ -470,4 +484,54 @@ void DeformWidget::disableTracking()
     this->originalLandmarks = this->landmarks = nullptr;
     trackingTimer->stop();
     delete trackingTimer;
+}
+
+void DeformWidget::changeColor(const QString &layerName)
+{
+    QImage *layer = layers[layerName];
+    double averageHue = 0.0;
+    int validPixelCount = 0;
+    for(int i = 0; i < layer->width(); i++)
+    {
+        for(int j = 0; j < layer->height(); j++)
+        {
+            QColor c = layer->pixelColor(i, j);
+            if(c.alphaF() > 0.5)
+            {
+                if(c.hsvHueF() >= 0.0)
+                {
+                    averageHue += c.hsvHueF();
+                    validPixelCount++;
+                }
+            }
+        }
+    }
+    averageHue /= validPixelCount;
+    qDebug() << validPixelCount;
+    qDebug() << averageHue;
+    qDebug() << QColor::fromHsvF(averageHue, 1.0, 1.0);
+    QColor newColor = QColorDialog::getColor(QColor::fromHsvF(averageHue, 1.0, 1.0));
+    qDebug() << newColor;
+    if(!newColor.isValid()) return;
+    double hueDelta = newColor.hsvHueF() - averageHue;
+    qDebug() << "Updateing layer...";
+    for(int i = 0; i < layer->width(); i++)
+    {
+        for(int j = 0; j < layer->height(); j++)
+        {
+            QColor c = layer->pixelColor(i, j);
+            if(c.alphaF() > 0.5)
+            {
+                if(c.hsvHueF() >= 0.0)
+                {
+                    double newHue = c.hsvHueF() + hueDelta;
+                    if(newHue < 0.0) newHue += 1.0;
+                    else if(newHue > 1.0) newHue -= 1.0;
+                    c.setHsvF(newHue, c.hsvSaturationF(), c.valueF());
+                    layer->setPixelColor(i, j, c);
+                }
+            }
+        }
+    }
+    repaint();
 }
